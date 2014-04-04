@@ -1,0 +1,20 @@
+{
+    "name": "deltaphp/sequence",
+    "description": "Sequence module",
+    "license": "GPL-3.0+",
+    "authors": [
+        {
+            "name": "orbisnull",
+            "email": "zen4dev@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "Sequence": "src/"
+        }
+    },
+    "require": {
+	"deltaphp/deltadb": "dev-postdb"
+    }
+}
