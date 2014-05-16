@@ -6,33 +6,14 @@
 namespace Sequence\Model\Adapter;
 
 
+use DeltaCore\Parts\Configurable;
 use DeltaDb\Adapter\PgsqlAdapter;
+use DeltaDb\DbaInclude;
 
-class PgSequence
+class PgSequence implements SequenceAdapterInterface
 {
-    /** @var  PgsqlAdapter */
-    protected $dba;
-
-    function __construct(PgsqlAdapter $dao)
-    {
-        $this->setDba($dao);
-    }
-
-    /**
-     * @param \DeltaDb\Adapter\PgsqlAdapter $dao
-     */
-    public function setDba(PgsqlAdapter $dao)
-    {
-        $this->dba = $dao;
-    }
-
-    /**
-     * @return \DeltaDb\Adapter\PgsqlAdapter
-     */
-    public function getDba()
-    {
-        return $this->dba;
-    }
+    use DbaInclude;
+    use Configurable;
 
     public function getSequences()
     {

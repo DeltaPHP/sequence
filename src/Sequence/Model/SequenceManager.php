@@ -8,8 +8,11 @@ namespace Sequence\Model;
 
 use DeltaCore\Config;
 use DeltaDb\Adapter\AbstractAdapter;
+use DeltaDb\Adapter\MysqlPdoAdapter;
 use DeltaDb\Adapter\PgsqlAdapter;
+use Sequence\Model\Adapter\MysqlSequence;
 use Sequence\Model\Adapter\PgSequence;
+use Sequence\Model\Adapter\SequenceAdapterInterface;
 
 class SequenceManager implements SequenceManagerInterface
 {
@@ -53,15 +56,22 @@ class SequenceManager implements SequenceManagerInterface
     }
 
     /**
-     * @return mixed
+     * @return SequenceAdapterInterface|PgSequence
+     * @throws \Exception
      */
     public function getAdapter()
     {
         if (is_null($this->adapter)) {
             $dba = $this->getDba();
             if ($dba instanceof PgsqlAdapter) {
-                $this->adapter = new PgSequence($dba);
+                $this->adapter = new PgSequence();
+            } elseif ($dba instanceof MysqlPdoAdapter) {
+                $this->adapter = new MysqlSequence();
+            } else {
+                throw new \Exception("Sequence adapter for dba not found");
             }
+            $this->adapter->setDba($dba);
+            $this->adapter->setConfig($this->getConfig());
         }
         return $this->adapter;
     }
