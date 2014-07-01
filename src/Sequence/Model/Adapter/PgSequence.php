@@ -7,8 +7,7 @@ namespace Sequence\Model\Adapter;
 
 
 use DeltaCore\Parts\Configurable;
-use DeltaDb\Adapter\PgsqlAdapter;
-use DeltaDb\DbaInclude;
+use DeltaDb\Parts\DbaInclude;
 
 class PgSequence implements SequenceAdapterInterface
 {
