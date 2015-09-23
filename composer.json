@@ -15,6 +15,6 @@
         }
     },
     "require": {
-	"deltaphp/deltadb": "dev-master"
+	"deltaphp/deltadb": "~1.0"
     }
 }
