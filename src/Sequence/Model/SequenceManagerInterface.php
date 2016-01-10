@@ -5,8 +5,9 @@
 
 namespace Sequence\Model;
 
+use DeltaDb\Parts\DbaInclude;
 
 interface SequenceManagerInterface
 {
-    public function getNext($sequenceName);
+    public function getNext($sequenceName = "default");
 } 

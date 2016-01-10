@@ -6,14 +6,10 @@
 namespace Sequence\Model\Adapter;
 
 
-use DeltaDb\Adapter\AbstractAdapter;
+use DeltaCore\ConfigurableInterface;
+use DeltaDb\Parts\DbaIncludeInterface;
 
-interface SequenceAdapterInterface
+interface SequenceAdapterInterface extends ConfigurableInterface, DbaIncludeInterface
 {
-
-    public function getSequences();
-
-    public function checkSequence($sequenceName);
-
-    public function getNext($sequenceName);
-} 
+    public function getNext($sequenceName = "default");
+}

@@ -6,83 +6,60 @@
 namespace Sequence\Model;
 
 
-use DeltaCore\Config;
-use DeltaDb\Adapter\AbstractAdapter;
-use DeltaDb\Adapter\MysqlPdoAdapter;
-use DeltaDb\Adapter\PgsqlAdapter;
+use DeltaCore\Parts\Configurable;
+use DeltaDb\Parts\DbaInclude;
+use DeltaUtils\StringUtils;
 use Sequence\Model\Adapter\MysqlSequence;
 use Sequence\Model\Adapter\PgSequence;
 use Sequence\Model\Adapter\SequenceAdapterInterface;
 
 class SequenceManager implements SequenceManagerInterface
 {
-    /** @var  Config */
-    protected $config;
-    /** @var  AbstractAdapter */
-    protected $dba;
+    use DbaInclude;
+    use Configurable;
 
-    protected $adapter;
-
-    /**
-     * @param \DeltaCore\Config $config
-     */
-    public function setConfig($config)
-    {
-        $this->config = $config;
-    }
-
-    /**
-     * @return \DeltaCore\Config
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    /**
-     * @param \DeltaDb\Adapter\AbstractAdapter $dao
-     */
-    public function setDba($dao)
-    {
-        $this->dba = $dao;
-    }
-
-    /**
-     * @return \DeltaDb\Adapter\AbstractAdapter
-     */
-    public function getDba()
-    {
-        return $this->dba;
-    }
+    /** @var array SequenceAdapterInterface[] */
+    protected $adapters = [];
+    protected $default;
 
     /**
      * @return SequenceAdapterInterface|PgSequence
      * @throws \Exception
      */
-    public function getAdapter()
+    public function getAdapter($adapter = "default")
     {
-        if (is_null($this->adapter)) {
-            $dba = $this->getDba();
-            if ($dba instanceof PgsqlAdapter) {
-                $this->adapter = new PgSequence();
-            } elseif ($dba instanceof MysqlPdoAdapter) {
-                $this->adapter = new MysqlSequence();
-            } else {
-                throw new \Exception("Sequence adapter for dba not found");
+        $adapterName = StringUtils::cutClassName($adapter);
+        if ($adapterName === "default") {
+            if (is_null($this->default)) {
+                $dba = $this->getDba();
+                if ($dba instanceof \DeltaDb\Adapter\PgsqlAdapter) {
+                    $defaultAdapter = $this->getConfig("adapter", "PgSequence");
+                } elseif ($dba instanceof \DeltaDb\Adapter\MysqlPdoAdapter) {
+                    $defaultAdapter = "MysqlSequence";
+                } else {
+                    throw new \Exception("Sequence adapter for dba not found");
+                }
+                $this->default = $defaultAdapter;
             }
-            $this->adapter->setDba($dba);
-            $this->adapter->setConfig($this->getConfig());
+            return $this->getAdapter($this->default);
         }
-        return $this->adapter;
+        if (!StringUtils::isFullClass($adapter)) {
+            $adapter = "\\Sequence\\Model\\Adapter\\" . $adapter;
+        }
+        $this->adapters[$adapterName] = new $adapter();
+        $this->adapters[$adapterName]->setDba($this->getDba());
+        $this->adapters[$adapterName]->setConfig($this->getConfig());
+
+        return $this->adapters[$adapterName];
     }
 
     public function getSequences()
     {
-        $sequences = $this->getConfig()->get(["Sequence", "sequences"], [])->toArray();
+        $sequences = $this->getConfig()->get(["Sequence", "sequences"], ["default"])->toArray();
         return $sequences;
     }
 
-    public function getNext($sequenceName)
+    public function getNext($sequenceName = "default")
     {
         $sequences = array_flip($this->getSequences());
         if (!isset($sequences[$sequenceName])) {
@@ -91,11 +68,4 @@ class SequenceManager implements SequenceManagerInterface
         $adapter = $this->getAdapter();
         return $adapter->getNext($sequenceName);
     }
-
-
-
-
-
-
-
-} 
+}

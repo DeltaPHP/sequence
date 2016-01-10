@@ -6,13 +6,11 @@
 namespace Sequence\Model\Adapter;
 
 
-use DeltaCore\Parts\Configurable;
 use DeltaDb\Parts\DbaInclude;
 
 class PgSequence implements SequenceAdapterInterface
 {
     use DbaInclude;
-    use Configurable;
 
     public function getSequences()
     {
@@ -33,7 +31,7 @@ class PgSequence implements SequenceAdapterInterface
         return $dba->query($sql);
     }
 
-    public function getNext($sequenceName)
+    public function getNext($sequenceName = "default")
     {
         $this->checkSequence($sequenceName);
         $dba =$this->getDba();

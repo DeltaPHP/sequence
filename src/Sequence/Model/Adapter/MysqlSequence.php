@@ -42,7 +42,7 @@ class MysqlSequence implements SequenceAdapterInterface
         return $dba->queryParams($sql, [$sequenceName, 1]);
     }
 
-    public function getNext($sequenceName)
+    public function getNext($sequenceName = "default")
     {
         $this->checkSequence($sequenceName);
         $dba = $this->getDba();

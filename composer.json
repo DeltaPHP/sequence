@@ -15,6 +15,6 @@
         }
     },
     "require": {
-	"deltaphp/deltadb": "~1.0"
+	"deltaphp/deltadb": "~1.3"
     }
 }
